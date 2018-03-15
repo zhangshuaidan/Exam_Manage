@@ -18,6 +18,7 @@ class ExamArrange extends React.Component {
         this.getData();
         axios.post('http://localhost/ExamArrange/courseManage/findAll.php', {})
             .then((response) => {
+                // console.log(response.data);
                 this.setState({
                     allCourse: response.data
                 })
@@ -170,7 +171,7 @@ class ExamArrange extends React.Component {
         });
     }; 
 
-    //成功通知提醒框
+    //失败通知提醒框
     openNotificationerr = (m, d) => {
         const key = `open${Date.now()}`;
         const btn = (
@@ -286,10 +287,22 @@ class ExamArrange extends React.Component {
         return (
             <div>
                 <BreadcrumbCustom first="考试安排" second="考试安排" />
-                   <Button type="primary" onClick={this.showModal}>添加</Button>
-                <Button type="primary" onClick={this.exportexcel}>测试导出数据</Button>
-                <a href="http://localhost/ExamArrange/exportexcel/exporttest.php">测试导出数据
-                </a>
+                <div className="arrange_header">
+                        <div className="arrange_option">
+                        <div className="download">
+                            <Button type="dashed" icon="download" onClick={()=> window.location.href ="http://localhost/ExamArrange/exportexcel/exporttest.php"}>导出</Button>
+                        </div>
+                        <div className="newarrange">
+                            <Button type="primary" onClick={this.showModal}>新增考试安排</Button>
+                        </div>
+                      
+                        </div>
+                </div>
+             
+                
+                {/* <Button type="primary" onClick={this.exportexcel}>测试导出数据</Button> */}
+                {/* <a href="http://localhost/ExamArrange/exportexcel/exporttest.php">测试导出数据
+                </a> */}
                 <Modal
                     title="新增考试安排"
                     visible={this.state.visible}
@@ -304,7 +317,8 @@ class ExamArrange extends React.Component {
                             <Select defaultValue="请选择" style={{ width: 240 }} onChange={this.arrangeChange.bind(this,"subject")}>
                                 {
                                     this.state.allCourse.map((item, index) =>
-                                        <Option key={index} value={item.coursename} >{item.coursename}</Option>)
+                                        <Option key={index} value={item.coursename} >{item.coursename}</Option>
+                                    )
                                 }     
                             </Select>
                     </div>

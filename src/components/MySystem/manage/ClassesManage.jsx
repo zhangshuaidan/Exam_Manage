@@ -65,23 +65,21 @@ class ClassesManage extends React.Component {
             data:JSON.stringify(_this.state.addobj)
         })
             .then((response) => {
-           console.log(response.data);
-             if (response.data>0) {
-                 _this.getData();
-           }
+        if(response.data.msg=="success"){
+            message.success(response.data.data.tip);
+            _this.getData();
+        }else{
+            message.error(response.data.data.tip);
+        }
             })
             .catch(function (error) {
                 console.log(error);
             });
-
-
         this.setState({
             addvisible: false,
         })
         }else{
-            // _this.error();
             message.error('请将信息填写完整');
-            // console.log("未包含");
         }
       
        
@@ -125,9 +123,13 @@ class ClassesManage extends React.Component {
             data:JSON.stringify(this.state.obj)
         })
             .then((response) => {
-                // console.log(response.data);
-                if (response.data>0) {
+                console.log(response.data);
+   
+                if (response.data.msg == "success") {
+                    message.success(response.data.data.tip);
                     _this.getData();
+                } else {
+                    message.error(response.data.data.tip);
                 }
             })
             .catch(function (error) {
@@ -190,34 +192,19 @@ class ClassesManage extends React.Component {
                 <span>
                     <Button onClick={this.showModal.bind(this,record)}>修改</Button>
                     <Button type="danger" onClick={this.deleteRocord.bind(this,record)}> 删除</Button>
-                    
                 </span>
             ),
         }];
-        const data = [{
-            key:1,
-            department:"信息工程学院",
-            major:"网络工程",
-            grade:"2014",
-            classes:"1"
-        },{
-                key: 2,
-                department: "信息工程学院",
-                major: "计算科学与技术",
-                grade: "2015",
-                classes: "2"
-            },{
-                key: 3,
-                department: "信息工程学院",
-                major: "物联网工程",
-                grade: "2016",
-                classes: "3"
-            },
-    ];
         return (
             <div>
                 <BreadcrumbCustom first="考试管理" second="班级管理" />
-                <Button type="primary" onClick={this.addClasses.bind(this)}>添加班级信息</Button>
+                <div className="class_header">
+                    <div className="class_option">
+                        <Button type="primary" onClick={this.addClasses.bind(this)}>添加班级信息</Button>
+                    </div>  
+                    
+                </div>
+              
                 <Modal
                     title="班级信息修改"
                     visible={this.state.visible}

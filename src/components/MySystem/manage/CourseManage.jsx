@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { Table, Button, Modal, Input, message } from 'antd';
+import { Table, Button, Modal, Input, message, Upload, Icon, notification} from 'antd';
 // 引入面包屑
 import BreadcrumbCustom from '../../BreadcrumbCustom';
 
@@ -10,7 +10,9 @@ class CourseManage extends React.Component {
         addvisible:false,
         coursevalue:"",
         id:"",
-        tabledata:[]
+        tabledata:[],
+        fileList: [],
+        uploading: false
     }
 
     componentWillMount() {
@@ -39,7 +41,7 @@ class CourseManage extends React.Component {
         this.setState({
             changevisible:true,
             id:a.id,
-            coursevalue: "",
+            coursevalue: a.coursename,
             
         })
     }
@@ -79,8 +81,14 @@ class CourseManage extends React.Component {
             })
                 .then((response) => {
                     // console.log(response.data);
-                    if (response.data > 0) {
+                    // if (response.data > 0) {
+                    //     _this.getData();
+                    // }
+                    if (response.data.msg == "success") {
+                        message.success(response.data.data.tip);
                         _this.getData();
+                    } else {
+                        message.error(response.data.data.tip);
                     }
                 })
                 .catch(function (error) {
@@ -107,8 +115,11 @@ class CourseManage extends React.Component {
             })
                 .then((response) => {
                     console.log(response.data);
-                    if (response.data > 0) {
+                    if (response.data.msg == "success") {
+                        message.success(response.data.data.tip);
                         _this.getData();
+                    } else {
+                        message.error(response.data.data.tip);
                     }
                 })
                 .catch(function (error) {
@@ -135,8 +146,57 @@ class CourseManage extends React.Component {
             coursevalue:v
         })
     }
+    uploadUpdate=(e)=>{
+        let file = e.target.files[0];
+        // console.log(file);
+        let param = new FormData(); //创建form对象
+        param.append('myfile', file, file.name);//通过append向form对象添加数据
+        let config = {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        };  //添加请求头
+        axios.post('http://localhost/ExamArrange/courseManage/importCourse.php', param, config)
+            .then(response => {
+                console.log(response.data);
+            })      
+    }
 
-
+    handleUpload = () => {
+        const { fileList } = this.state;
+        const formData = new FormData();
+        console.log(fileList);
+        this.setState({
+            uploading: true,
+        });
+        formData.append('myfile', fileList[0], fileList[0].name);//通过append向form对象添加数据
+        let config = {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        };  //添加请求头
+        axios.post('http://localhost/ExamArrange/courseManage/importCourse.php', formData, config)
+            .then(response => {
+                console.log(response.data);
+                this.openNotification("课程数据导入成功", response.data.data.txt);
+                this.setState({
+                    uploading: false,
+                });
+            })     
+    }
+    //成功通知提醒框
+    openNotification = (m, d) => {
+        const key = `open${Date.now()}`;
+        const btn = (
+            <Button type="primary" size="small" onClick={() => notification.close(key)}>
+                知道了
+             </Button>
+        );
+        notification.open({
+            message: m,
+            description: d,
+            duration: null,
+            btn,
+            key,
+            icon: <Icon type="smile-circle" style={{ color: '#108ee9' }} />,
+        });
+    }; 
     render() {
         const columns = [{
             title: '课程名称',
@@ -153,24 +213,61 @@ class CourseManage extends React.Component {
                 </span>
             ),
         }];
-
+        const { uploading } = this.state;
+        const props = {
+            // action: '//jsonplaceholder.typicode.com/posts/',
+            onRemove: (file) => {
+                this.setState(({ fileList }) => {
+                    const index = fileList.indexOf(file);
+                    const newFileList = fileList.slice();
+                    newFileList.splice(index, 1);
+                    return {
+                        fileList: newFileList,
+                    };
+                });
+            },
+            beforeUpload: (file) => {
+                this.setState(({ fileList }) => ({
+                    fileList: [...fileList, file],
+                }));
+                return false;
+            },
+            fileList: this.state.fileList,
+        };
         return (
             <div>
+
                 {/* 面包屑 */}
                 <BreadcrumbCustom first="考试管理" second="课程管理" />
-                <div className="import_excel">
-                    <form encType="multipart/form-data" action="http://localhost/ExamArrange/courseManage/importCourse.php" method="post">
-        
-        请选择你要上传的文件
-        <input type="file" name="myfile"/>
-        {/* application/vnd.openxmlformats-officedocument.spreadsheetml.sheet */}
-        {/* application/vnd.openxmlformats-officedocument.wordprocessingml.document */}
-      <input type="submit" value="上传文件" />
-   
-</form>
+                <div className="course_header">
+                    <div className="import_excel">
 
+                        {/* 请选择你要上传的文件
+              <input type="file" name="myfile" onChange={this.uploadUpdate}/> */}
+
+                        <Upload {...props}>
+                            <Button>
+                                <Icon type="upload" /> 导入Excel课程表
+                      </Button>
+                        </Upload>
+                        <Button
+                            className="upload-course-start"
+                            type="primary"
+                            onClick={this.handleUpload}
+                            disabled={this.state.fileList.length === 0}
+                            loading={uploading}
+                        >
+                            {uploading ? 'Uploading' : '开始导入'}
+                        </Button>
+
+                    </div>
+
+                    <div className="course_option">
+                        <Button type="primary" onClick={this.addCourse.bind(this)}>添加课程信息</Button>
+                    </div>
                 </div>
-                <Button type="primary" onClick={this.addCourse.bind(this)}>添加课程信息</Button>
+
+              
                 <Table columns={columns} dataSource={this.state.tabledata} rowKey="id"/>
 
                  {/* 修改对话框 */}
@@ -185,7 +282,7 @@ class CourseManage extends React.Component {
                     >
 
                         <div className="course_inp_wrapper">
-                            <span className="course_span">课程</span>  <Input placeholder="请输入修改后的课程" onChange={this.inpChange} />
+                            <span className="course_span">课程</span>  <Input placeholder="请输入修改后的课程" value={this.state.coursevalue} onChange={this.inpChange} />
                         </div>
                     </Modal>)
                  }

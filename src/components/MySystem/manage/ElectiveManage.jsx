@@ -54,8 +54,14 @@ class ElectiveManage extends React.Component {
             obj: this.state.changeObj
         })
             .then((response) => {
-                if (response.data>0) {
+                
+                // console.log(response.data);
+
+                if (response.data.msg === "success") {
+                    message.success(response.data.data.tip);
                     this.getAllElective();
+                } else {
+                    message.error(response.data.data.tip);
                 }
             })
             .catch(function (error) {
@@ -77,12 +83,17 @@ class ElectiveManage extends React.Component {
         })
             .then((response) => {
                 // console.log(response.data);
-                if (response.data>0) {
+
+                if (response.data.msg === "success") {
+                    message.success(response.data.data.tip);
                     this.getAllElective();   
-                    this.setState({
-                        addvisible:false
-                    })
+                } else {
+                    message.error(response.data.data.tip);
                 }
+
+                this.setState({
+                    addvisible: false
+                })
             })
             .catch(function (error) {
                 console.log(error);
@@ -95,7 +106,7 @@ class ElectiveManage extends React.Component {
 
     // 修改按钮
     changeBtn=(a)=>{
-        console.log("获取到的值",a)
+        // console.log("获取到的值",a)
         this.setState({
             changevisible: true,
             changeObj:a
@@ -176,8 +187,12 @@ class ElectiveManage extends React.Component {
             <div>
                 {/* 面包屑 */}
                 <BreadcrumbCustom first="考试管理" second="选修管理" />
-             
-                <Button type="primary" onClick={this.addElective}>添加选修记录</Button>
+                <div className="elective_header">
+                        <div className="elective_option">
+                        <Button type="primary" onClick={this.addElective}>添加选修记录</Button>
+                        </div>
+                </div>
+               
                  <Table columns={columns} dataSource={this.state.tableData} rowKey="id"/>
 
                  {/* Changeelective */}

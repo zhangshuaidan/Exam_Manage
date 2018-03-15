@@ -32,16 +32,16 @@ class InvigilatorManage extends React.Component {
 
     // 更改课程
     changeCourse = (a) => {
-        console.log(a)   
+        // console.log(a);
         this.setState({
             changevisible: true,
             id: a.id,
-            invigilator: "",
+            invigilator: a.invigilator,
         })
     }
     // 删除课程
     deleteCourse = (a) => {
-        console.log(a);
+        // console.log(a);
         let _this = this;
         axios.post('http://localhost/ExamArrange/invigilatorManage/deleteInvigilator.php', {
             id: a.id
@@ -73,9 +73,17 @@ class InvigilatorManage extends React.Component {
                 invigilator: _this.state.invigilator
             })
                 .then((response) => {
-                    console.log(response.data);
-                    if (response.data > 0) {
+
+                    // console.log(response.data);
+                    // if (response.data > 0) {
+                    //     _this.getData();
+                    // }
+
+                    if (response.data.msg === "success") {
+                        message.success(response.data.data.tip);
                         _this.getData();
+                    } else {
+                        message.error(response.data.data.tip);
                     }
                 })
                 .catch(function (error) {
@@ -100,8 +108,11 @@ class InvigilatorManage extends React.Component {
             })
                 .then((response) => {
                     // console.log(response.data);
-                    if (response.data > 0) {
+                    if (response.data.msg === "success") {
+                        message.success(response.data.data.tip);
                         _this.getData();
+                    } else {
+                        message.error(response.data.data.tip);
                     }
                 })
                 .catch(function (error) {
@@ -144,23 +155,17 @@ class InvigilatorManage extends React.Component {
                 </span>
             ),
         }];
-        const data = [{
-            id: 1,
-            invigilator: "监考人员1",
-        }, {
-            id: 2,
-            invigilator: "监考人员2",
-        }, {
-            id: 3,
-            invigilator: "监考人员3",
-        },
-        ];
         return (
             <div>
                 {/* 面包屑 */}
                 <BreadcrumbCustom first="考试管理" second="监考管理" />
-
-                <Button type="primary" onClick={this.addCourse.bind(this)}>添加监考人员</Button>
+                    <div className="ingilator_header">
+                    <div className="ingilatoroption">
+                        <Button type="primary" onClick={this.addCourse.bind(this)}>添加监考人员</Button>
+                    </div>
+                   
+                    </div>
+             
                 <Table columns={columns} dataSource={this.state.tabledata} rowKey="id" />
 
                 {/* 修改对话框 */}
@@ -175,7 +180,7 @@ class InvigilatorManage extends React.Component {
                     >
 
                         <div className="course_inp_wrapper">
-                            <span className="course_span">监考人员</span>  <Input placeholder="请输入修改后的监考人员" onChange={this.inpChange} />
+                            <span className="course_span">监考人员</span>  <Input placeholder="请输入修改后的监考人员" value={this.state.invigilator} onChange={this.inpChange} />
                         </div>
                     </Modal>)
                 }

@@ -21,7 +21,7 @@ class RoomManage extends React.Component {
         let _this = this;
         axios.post('http://localhost/ExamArrange/roomManage/findAll.php', {})
             .then((response) => {
-                console.log(response.data);
+                // console.log(response.data);
                 _this.setState({
                     tabledata: response.data
                 })
@@ -37,7 +37,7 @@ class RoomManage extends React.Component {
         this.setState({
             changevisible: true,
             id: a.id,
-            room: "",
+            room: a.room,
         })
     }
     // 删除
@@ -74,8 +74,11 @@ class RoomManage extends React.Component {
             })
                 .then((response) => {
                     console.log(response.data);
-                    if (response.data > 0) {
+                    if (response.data.msg === "success") {
+                        message.success(response.data.data.tip);
                         _this.getData();
+                    } else {
+                        message.error(response.data.data.tip);
                     }
                 })
                 .catch(function (error) {
@@ -88,21 +91,20 @@ class RoomManage extends React.Component {
         } else {
             message.error('请将修改信息输入完整');
         }
-
-
     }
 
     addCourseOk = () => {
         let _this = this;
-        console.log('room===>',this.state.room);
         if (this.state.room) {
             axios.post('http://localhost/ExamArrange/roomManage/addRoom.php', {
                 room: _this.state.room
             })
                 .then((response) => {
-                    // console.log(response.data);
-                    if (response.data > 0) {
+                    if (response.data.msg === "success") {
+                        message.success(response.data.data.tip);
                         _this.getData();
+                    } else {
+                        message.error(response.data.data.tip);
                     }
                 })
                 .catch(function (error) {
@@ -145,23 +147,16 @@ class RoomManage extends React.Component {
                 </span>
             ),
         }];
-        const data = [{
-            id: 1,
-            room: "教室A",
-        }, {
-            id: 2,
-            room: "教室B",
-        }, {
-            id: 3,
-            room: "教室C",
-        },
-        ];
         return (
             <div>
                 {/* 面包屑 */}
                 <BreadcrumbCustom first="考试管理" second="教室管理" />
-
-                <Button type="primary" onClick={this.addCourse.bind(this)}>添加教室信息</Button>
+                <div className="room_header">
+                    <div className="room_option">
+                        <Button type="primary" onClick={this.addCourse.bind(this)}>添加教室信息</Button>
+                    </div>
+                </div>
+            
                 <Table columns={columns} dataSource={this.state.tabledata} rowKey="id" />
 
                 {/* 修改对话框 */}
@@ -176,7 +171,7 @@ class RoomManage extends React.Component {
                     >
 
                         <div className="course_inp_wrapper">
-                            <span className="course_span">考试地点</span>  <Input placeholder="请输入修改后的教室地点" onChange={this.inpChange} />
+                            <span className="course_span">考试地点</span>  <Input placeholder="请输入修改后的教室地点" value={this.state.room} onChange={this.inpChange} />
                         </div>
                     </Modal>)
                 }
