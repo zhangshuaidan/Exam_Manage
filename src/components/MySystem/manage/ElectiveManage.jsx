@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { Table, Modal, Button, Select, message } from 'antd';
+import { Table, Modal, Button, Select, message, Upload, Icon, notification} from 'antd';
 // 引入面包屑
 import BreadcrumbCustom from '../../BreadcrumbCustom';
 const Option = Select.Option;
@@ -12,7 +12,9 @@ class ElectiveManage extends React.Component {
         allCourse:[],
         tableData:[],
         changeObj:{},
-        addObj:{}
+        addObj:{},
+        fileList: [],
+        uploading: false
     }
 
     componentWillMount(){
@@ -154,6 +156,48 @@ class ElectiveManage extends React.Component {
             addvisible:true
         })
     }
+    //成功通知提醒框
+    openNotification = (m, d) => {
+        const key = `open${Date.now()}`;
+        const btn = (
+            <Button type="primary" size="small" onClick={() => notification.close(key)}>
+                知道了
+             </Button>
+        );
+        notification.open({
+            message: m,
+            description: d,
+            duration: null,
+            btn,
+            key,
+            icon: <Icon type="smile-circle" style={{ color: '#108ee9' }} />,
+        });
+    }; 
+    handleUpload = () => {
+        const { fileList } = this.state;
+        const formData = new FormData();
+        // console.log(fileList);
+        this.setState({
+            uploading: true,
+        });
+        formData.append('myfile', fileList[0], fileList[0].name);//通过append向form对象添加数据
+        let config = {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        };  //添加请求头
+        axios.post('http://localhost/ExamArrange/electiveManage/importElective.php', formData, config)
+            .then(response => {
+                // console.log(response.data);
+                if(response.data.msg="success"){
+               this.openNotification("选修记录导入成功", response.data.data.txt);
+                this.getAllElective();   
+                this.setState({
+                    uploading: false,
+                });
+                }
+              
+            
+            })
+    }
 
     render() {
         const columns = [{
@@ -183,15 +227,60 @@ class ElectiveManage extends React.Component {
                 </span>
             ),
         }];
+        const { uploading } = this.state;
+        const props = {
+            // action: '//jsonplaceholder.typicode.com/posts/',
+            onRemove: (file) => {
+                this.setState(({ fileList }) => {
+                    const index = fileList.indexOf(file);
+                    const newFileList = fileList.slice();
+                    newFileList.splice(index, 1);
+                    return {
+                        fileList: newFileList,
+                    };
+                });
+            },
+            beforeUpload: (file) => {
+                this.setState(({ fileList }) => ({
+                    fileList: [...fileList, file],
+                }));
+                return false;
+            },
+            fileList: this.state.fileList,
+        };
         return (
             <div>
                 {/* 面包屑 */}
                 <BreadcrumbCustom first="考试管理" second="选修管理" />
-                <div className="elective_header">
+                <div className="course_header">
+                    <div className="import_excel">
+
+                        {/* 请选择你要上传的文件
+              <input type="file" name="myfile" onChange={this.uploadUpdate}/> */}
+
+                        <Upload {...props}>
+                            <Button>
+                                <Icon type="upload" /> 导入选修记录
+                      </Button>
+                        </Upload>
+                        <Button
+                            className="upload-course-start"
+                            type="primary"
+                            onClick={this.handleUpload}
+                            disabled={this.state.fileList.length === 0}
+                            loading={uploading}
+                        >
+                            {uploading ? 'Uploading' : '开始导入'}
+                        </Button>
+
+                    </div>
+                    <div className="elective_header">
                         <div className="elective_option">
-                        <Button type="primary" onClick={this.addElective}>添加选修记录</Button>
+                            <Button type="primary" onClick={this.addElective}>添加选修记录</Button>
                         </div>
+                    </div>
                 </div>
+
                
                  <Table columns={columns} dataSource={this.state.tableData} rowKey="id"/>
 

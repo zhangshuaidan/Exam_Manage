@@ -122,7 +122,7 @@ class InvigilatorManage extends React.Component {
                 addvisible: false
             })
         } else {
-            message.error('请输入课程信息');
+            message.error('请输入监考信息');
         }
 
     }
@@ -200,7 +200,7 @@ class InvigilatorManage extends React.Component {
                     >
 
                         <div className="course_inp_wrapper">
-                            <span className="course_span">监考人员</span>  <Input placeholder="请输入添加的课程" onChange={this.inpChange} />
+                            <span className="course_span">监考人员</span>  <Input placeholder="请输入监考名称" onChange={this.inpChange} />
                         </div>
                     </Modal>)
                 }

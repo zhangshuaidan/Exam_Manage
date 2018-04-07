@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Form, Icon, Input, Button, Checkbox, message} from 'antd';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -77,7 +78,8 @@ class Login extends React.Component {
             <div className="login">
                 <div className="login-form" >
                     <div className="login-logo">
-                        <span>System Manage</span>
+                    {/* System Manage */}
+                        <span>信息工程学院考试安排系统</span>
                     </div>
                     <Form onSubmit={this.handleSubmit} style={{maxWidth: '300px'}}>
                         <FormItem>
@@ -101,7 +103,10 @@ class Login extends React.Component {
                             })(
                                 <Checkbox>记住我</Checkbox>
                             )}
-                            <a className="login-form-forgot" href="" style={{float: 'right'}}>忘记密码</a>
+                            <Link to="/resetpwd" style={{ float: 'right' }}>
+                               修改密码
+                            </Link>
+                            {/* <a className="login-form-forgot" href="" style={{float: 'right'}}>忘记密码</a> */}
                             <Button type="primary" htmlType="submit" className="login-form-button" style={{width: '100%'}}>
                                 登录
                             </Button>

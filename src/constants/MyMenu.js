@@ -1,13 +1,13 @@
 export const menus = [
-    { key: '/app/myweb/home', title: '首页', icon: 'mobile', },
+    { key: '/app/myweb/home', title: '首页', icon: 'home', },
     {
-        key: '/app/manage', title: '考试管理', icon: 'rocket',
+        key: '/app/manage', title: '考试管理', icon: 'appstore',
         sub: [
             { key: '/app/manage/classesmanage', title: '班级管理', icon: '', },
             { key: '/app/manage/coursemanage', title: '课程管理', icon: '', },
             { key: '/app/manage/electivemanage', title: '选修管理', icon: '', },
-            { key: '/app/manage/invigilatormanage', title: '监考人员管理', icon: '', },
-            { key: '/app/manage/roommanage', title: '教室管理', icon: '', },
+            { key: '/app/manage/invigilatormanage', title: '监考管理', icon: '', },
+            { key: '/app/manage/roommanage', title: '考场管理', icon: '', },
             // { key: '/app/animation/basicAnimations', title: '选修管理', icon: '', },
             // { key: '/app/animation/exampleAnimations', title: '监考人员管理', icon: '', },
             // { key: '/app/animation/exampleAnimations', title: '教室管理', icon: '', },

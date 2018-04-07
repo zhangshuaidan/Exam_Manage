@@ -150,10 +150,10 @@ class RoomManage extends React.Component {
         return (
             <div>
                 {/* 面包屑 */}
-                <BreadcrumbCustom first="考试管理" second="教室管理" />
+                <BreadcrumbCustom first="考试管理" second="考场管理" />
                 <div className="room_header">
                     <div className="room_option">
-                        <Button type="primary" onClick={this.addCourse.bind(this)}>添加教室信息</Button>
+                        <Button type="primary" onClick={this.addCourse.bind(this)}>添加考场信息</Button>
                     </div>
                 </div>
             
@@ -162,7 +162,7 @@ class RoomManage extends React.Component {
                 {/* 修改对话框 */}
                 {
                     this.state.changevisible && (<Modal
-                        title="修改教室信息"
+                        title="修改考场信息"
                         visible={this.state.changevisible}
                         onOk={this.changeCourseOk}
                         onCancel={this.changeCancel}
@@ -171,7 +171,7 @@ class RoomManage extends React.Component {
                     >
 
                         <div className="course_inp_wrapper">
-                            <span className="course_span">考试地点</span>  <Input placeholder="请输入修改后的教室地点" value={this.state.room} onChange={this.inpChange} />
+                            <span className="course_span">考试地点</span>  <Input placeholder="请输入修改后的考场地点" value={this.state.room} onChange={this.inpChange} />
                         </div>
                     </Modal>)
                 }
@@ -180,7 +180,7 @@ class RoomManage extends React.Component {
 
                 {
                     this.state.addvisible && (<Modal
-                        title="添加教室信息"
+                        title="添加考场信息"
                         visible={this.state.addvisible}
                         onOk={this.addCourseOk}
                         onCancel={() => this.setState({
@@ -191,7 +191,7 @@ class RoomManage extends React.Component {
                     >
 
                         <div className="course_inp_wrapper">
-                            <span className="course_span">考试地点</span>  <Input placeholder="请输入添加的教室地点" onChange={this.inpChange} />
+                            <span className="course_span">考试地点</span>  <Input placeholder="请输入添加的考场地点" onChange={this.inpChange} />
                         </div>
                     </Modal>)
                 }

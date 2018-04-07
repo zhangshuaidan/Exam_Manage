@@ -161,9 +161,10 @@ class CourseManage extends React.Component {
     }
 
     handleUpload = () => {
+        let _this=this;
         const { fileList } = this.state;
         const formData = new FormData();
-        console.log(fileList);
+        // console.log(fileList);
         this.setState({
             uploading: true,
         });
@@ -173,7 +174,8 @@ class CourseManage extends React.Component {
         };  //添加请求头
         axios.post('http://localhost/ExamArrange/courseManage/importCourse.php', formData, config)
             .then(response => {
-                console.log(response.data);
+                // console.log(response.data);
+                _this.getData();
                 this.openNotification("课程数据导入成功", response.data.data.txt);
                 this.setState({
                     uploading: false,
@@ -239,6 +241,7 @@ class CourseManage extends React.Component {
 
                 {/* 面包屑 */}
                 <BreadcrumbCustom first="考试管理" second="课程管理" />
+
                 <div className="course_header">
                     <div className="import_excel">
 
@@ -247,7 +250,7 @@ class CourseManage extends React.Component {
 
                         <Upload {...props}>
                             <Button>
-                                <Icon type="upload" /> 导入Excel课程表
+                                <Icon type="upload" /> 导入课程表
                       </Button>
                         </Upload>
                         <Button

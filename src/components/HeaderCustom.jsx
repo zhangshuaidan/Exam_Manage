@@ -105,6 +105,7 @@ class HeaderCustom extends Component {
                             {/* <Menu.Item key="setting:1">你好 - {this.props.user.userName}</Menu.Item> */}
                             {/* <Menu.Item key="setting:2">个人信息</Menu.Item> */}
                             <Menu.Item key="logout"><span onClick={this.logout}>退出登录</span></Menu.Item>
+                            <Menu.Item key="resetpwd"><span onClick={() => { this.props.history.push("/resetpwd")}}>修改密码</span></Menu.Item>
                         </MenuItemGroup>
                         {/* <MenuItemGroup title="设置中心">
                             <Menu.Item key="setting:3">个人设置</Menu.Item>
