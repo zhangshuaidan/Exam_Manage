@@ -9,6 +9,7 @@ class RoomManage extends React.Component {
         changevisible: false,
         addvisible: false,
         room: "",
+        hold:"",
         id: "",
         tabledata: []
     }
@@ -33,11 +34,12 @@ class RoomManage extends React.Component {
 
     // 更改课程
     changeCourse = (a) => {
-        console.log(a)
+        console.log(a);
         this.setState({
             changevisible: true,
             id: a.id,
             room: a.room,
+            hold:a.hold
         })
     }
     // 删除
@@ -70,10 +72,11 @@ class RoomManage extends React.Component {
         if (this.state.room) {
             axios.post('http://localhost/ExamArrange/roomManage/updateRoom.php', {
                 id: _this.state.id,
-                room: _this.state.room
+                room: _this.state.room,
+                hold:_this.state.hold
             })
                 .then((response) => {
-                    console.log(response.data);
+                    // console.log(response.data);
                     if (response.data.msg === "success") {
                         message.success(response.data.data.tip);
                         _this.getData();
@@ -97,7 +100,8 @@ class RoomManage extends React.Component {
         let _this = this;
         if (this.state.room) {
             axios.post('http://localhost/ExamArrange/roomManage/addRoom.php', {
-                room: _this.state.room
+                room: _this.state.room,
+                hold:_this.state.hold
             })
                 .then((response) => {
                     if (response.data.msg === "success") {
@@ -125,11 +129,18 @@ class RoomManage extends React.Component {
     }
 
 
-    inpChange = (e) => {
+    inpChange = (a,e) => {
         let v = e.target.value;
+        if (a=="room") {
         this.setState({
             room: v
         })
+        }else if (a=="hold") {
+            this.setState({
+                hold: v
+            }) 
+        }
+ 
     }
     render() {
         const columns = [{
@@ -138,6 +149,10 @@ class RoomManage extends React.Component {
             key: 'room',
             render: text => <a>{text}</a>,
         }, {
+                title: '座位数',
+                dataIndex: 'hold',
+                key: 'hold',
+            }, {
             title: '操作',
             key: 'action',
             render: (text, record) => (
@@ -171,7 +186,10 @@ class RoomManage extends React.Component {
                     >
 
                         <div className="course_inp_wrapper">
-                            <span className="course_span">考试地点</span>  <Input placeholder="请输入修改后的考场地点" value={this.state.room} onChange={this.inpChange} />
+                            <span className="course_span">考试地点</span>  <Input placeholder="请输入修改后的考场地点" value={this.state.room} onChange={this.inpChange.bind(this, "room")} />
+                        </div>
+                        <div className="course_inp_wrapper">
+                            <span className="course_span">容纳人数</span>  <Input type="number" value={this.state.hold} onChange={this.inpChange.bind(this, "hold")} />
                         </div>
                     </Modal>)
                 }
@@ -191,7 +209,10 @@ class RoomManage extends React.Component {
                     >
 
                         <div className="course_inp_wrapper">
-                            <span className="course_span">考试地点</span>  <Input placeholder="请输入添加的考场地点" onChange={this.inpChange} />
+                            <span className="course_span">考试地点</span>  <Input placeholder="请输入添加的考场地点" onChange={this.inpChange.bind(this,"room")} />
+                        </div>
+                        <div className="course_inp_wrapper">
+                            <span className="course_span">容纳人数</span>  <Input type="number" placeholder="请输入考场座位数" onChange={this.inpChange.bind(this,"hold")} />
                         </div>
                     </Modal>)
                 }

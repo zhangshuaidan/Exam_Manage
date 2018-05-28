@@ -79,7 +79,7 @@ class App extends Component {
                         <Routes auth={auth} />
                     </Content>
                     <Footer style={{ textAlign: 'center' }}>
-                    System ©2017 Created by tim_zsd
+                    信息工程学院考试安排管理系统
                     </Footer>
                 </Layout>
                 

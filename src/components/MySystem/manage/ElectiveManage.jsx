@@ -1,9 +1,10 @@
 import React from 'react';
 import axios from 'axios';
-import { Table, Modal, Button, Select, message, Upload, Icon, notification} from 'antd';
+import { Table, Modal, Button, Select, message, Upload, Icon, notification, Input } from 'antd';
 // 引入面包屑
 import BreadcrumbCustom from '../../BreadcrumbCustom';
 const Option = Select.Option;
+const Search = Input.Search;
 class ElectiveManage extends React.Component {
     state = {
         changevisible: false,
@@ -49,9 +50,8 @@ class ElectiveManage extends React.Component {
 
     // 更改按钮
     changeOk=()=>{
-        this.setState({
-            changevisible: false,
-        })
+        // console.log(this.state.changeObj);
+
         axios.post('http://localhost/ExamArrange/electiveManage/updateElective.php', {
             obj: this.state.changeObj
         })
@@ -62,6 +62,9 @@ class ElectiveManage extends React.Component {
                 if (response.data.msg === "success") {
                     message.success(response.data.data.tip);
                     this.getAllElective();
+                    this.setState({
+                        changevisible: false,
+                    })
                 } else {
                     message.error(response.data.data.tip);
                 }
@@ -75,7 +78,7 @@ class ElectiveManage extends React.Component {
     //确认添加
     addOk=()=>{
         
-        console.log(this.state.addObj);
+        // console.log(this.state.addObj);
         let a = this.state.addObj.hasOwnProperty("course");
         let b = this.state.addObj.hasOwnProperty("major");
         let c = this.state.addObj.hasOwnProperty("grade");
@@ -149,6 +152,28 @@ class ElectiveManage extends React.Component {
             addObj: obj
         })
     }
+    // 搜索
+    electiveSearch=(v)=>{
+        // console.log(v);
+
+        axios.post('http://localhost/ExamArrange/electiveManage/searchElective.php', {
+            value:v
+        })
+            .then((response) => {
+                // console.log(response);
+                console.log(response.data);
+                this.setState({
+                    tableData: response.data
+                })
+                // if (response.data > 0) {
+                //     this.getAllElective();
+                // }
+
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
 
 
     addElective=()=>{
@@ -213,7 +238,11 @@ class ElectiveManage extends React.Component {
             title: '年级',
             dataIndex: 'grade',
             key: 'grade',
-        },
+            }, {
+                title: '班级',
+                dataIndex: 'class_name',
+                key: 'class_name',
+            },
         {
             title: '操作',
             key: 'action',
@@ -274,6 +303,16 @@ class ElectiveManage extends React.Component {
                         </Button>
 
                     </div>
+                    <div className="search_wrapper">   
+                        <Search
+                            placeholder="请输入选修的课程"
+                            // onSearch={value => console.log(value)}
+                            onSearch={this.electiveSearch}
+                            
+                            enterButton
+                        />
+
+                    </div>
                     <div className="elective_header">
                         <div className="elective_option">
                             <Button type="primary" onClick={this.addElective}>添加选修记录</Button>
@@ -315,7 +354,7 @@ class ElectiveManage extends React.Component {
                             <Select value={this.state.changeObj.major} style={{ width: 240 }} onChange={this.electiveChange.bind(this, "major")}>
                                 <Option value="网络工程">网络工程</Option>
                                 <Option value="计算机科学与技术">计算机科学与技术</Option>
-                                <Option value="数字媒体">数字媒体</Option>
+                                <Option value="数字媒体技术">数字媒体技术</Option>
                                 <Option value="物联网工程">物联网工程</Option>
                             </Select>
                     </div>
@@ -328,6 +367,17 @@ class ElectiveManage extends React.Component {
                                 <Option value="2015">2015</Option>
                                 <Option value="2016">2016</Option>
                                 <Option value="2017">2017</Option>
+                            </Select>
+                        </div>
+                        <div className="elect_classes_select">
+                            <span>
+                                请选择班级
+                                  </span>
+                            <Select value={this.state.changeObj.class_name} style={{ width: 240 }} onChange={this.electiveChange.bind(this, "class_name")}>
+                                <Option value="1">1</Option>
+                                <Option value="2">2</Option>
+                                <Option value="3">3</Option>
+                       
                             </Select>
                         </div>
 
@@ -366,14 +416,15 @@ class ElectiveManage extends React.Component {
                                     <Select defaultValue="请选择" style={{ width: 240 }} onChange={this.electiveAdd.bind(this, "major")}>
                                         <Option value="网络工程">网络工程</Option>
                                         <Option value="计算机科学与技术">计算机科学与技术</Option>
-                                        <Option value="数字媒体">数字媒体</Option>
+                                        <Option value="数字媒体技术">数字媒体技术</Option>
                                         <Option value="物联网工程">物联网工程</Option>
                                     </Select>
                                 </div>
+
                                 <div className="elect_classes_select">
                                     <span>
                                         请选择年级
-                            </span>
+                                  </span>
                                     <Select defaultValue="请选择" style={{ width: 240 }} onChange={this.electiveAdd.bind(this, "grade")}>
                                         <Option value="2014">2014</Option>
                                         <Option value="2015">2015</Option>
@@ -382,6 +433,19 @@ class ElectiveManage extends React.Component {
                                     </Select>
                                 </div>
 
+
+
+                                <div className="elect_classes_select">
+                                    <span>
+                                        请选择班级
+                                  </span>
+                                    <Select defaultValue="请选择" style={{ width: 240 }} onChange={this.electiveAdd.bind(this, "class_name")}>
+                                        <Option value="1">1</Option>
+                                        <Option value="2">2</Option>
+                                        <Option value="3">3</Option>
+                                        {/* <Option value="2017">2017</Option> */}
+                                    </Select>
+                                </div>
                             </div>
                         </Modal>
                     )

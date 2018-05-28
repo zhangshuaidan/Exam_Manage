@@ -9,6 +9,8 @@ class CourseManage extends React.Component {
         changevisible:false,
         addvisible:false,
         coursevalue:"",
+        coursecode:"",
+        teacher:"",
         id:"",
         tabledata:[],
         fileList: [],
@@ -24,7 +26,7 @@ class CourseManage extends React.Component {
         let _this=this;
         axios.post('http://localhost/ExamArrange/courseManage/findAll.php', {})
             .then((response) => {
-                // console.log(response.data)
+                // console.log(response.data)  
                 _this.setState({
                     tabledata: response.data
                 })
@@ -37,11 +39,13 @@ class CourseManage extends React.Component {
 
 // 更改课程
     changeCourse=(a)=>{
-        // console.log(a)   
+        console.log(a);
         this.setState({
             changevisible:true,
             id:a.id,
             coursevalue: a.coursename,
+            coursecode:a.coursecode,
+            teacher:a.teacher
             
         })
     }
@@ -65,19 +69,21 @@ class CourseManage extends React.Component {
     addCourse=()=>{
         this.setState({
             addvisible:true,
-            coursevalue: ""
+            coursevalue: "",
+            coursecode:"",
+            teacher:""
         })
     }
     
     // 更改课程信息
     changeCourseOk=()=>{
         let _this = this;
-        // console.log(this.state.coursevalue)
-        // console.log(this.state.id)
         if (this.state.coursevalue) {
             axios.post('http://localhost/ExamArrange/courseManage/updateCourse.php', {
                 id: _this.state.id,
-                coursename: _this.state.coursevalue
+                  coursecode: _this.state.coursecode,
+                 coursename: _this.state.coursevalue,
+                teacher: _this.state.teacher
             })
                 .then((response) => {
                     // console.log(response.data);
@@ -106,12 +112,17 @@ class CourseManage extends React.Component {
     }
 
     addCourseOk=()=>{
-        // console.log("okok")
+
+        // console.log(this.state.coursecode);
         // console.log(this.state.coursevalue);
+        // console.log(this.state.teacher);
+
         let _this=this;
         if (this.state.coursevalue) {
             axios.post('http://localhost/ExamArrange/courseManage/addCourse.php', {
-                coursename: _this.state.coursevalue
+                coursecode:_this.state.coursecode,
+                coursename: _this.state.coursevalue,
+                teacher:_this.state.teacher
             })
                 .then((response) => {
                     console.log(response.data);
@@ -140,11 +151,29 @@ class CourseManage extends React.Component {
     }
 
 
-    inpChange=(e)=>{
-        let v = e.target.value;
-        this.setState({
-            coursevalue:v
-        })
+    inpChange=(a,b)=>{
+        let v = b.target.value;
+        let _this=this;
+        switch (a) {
+            case "coursecode":
+                _this.setState({
+                    coursecode:v
+                })
+                break;
+            case "coursename":
+                _this.setState({
+                    coursevalue:v
+                })
+                break;
+            case "teacher":
+                _this.setState({
+                    teacher: v
+                })
+                break;
+        }
+        // this.setState({
+        //     coursevalue:v
+        // })
     }
     uploadUpdate=(e)=>{
         let file = e.target.files[0];
@@ -174,7 +203,7 @@ class CourseManage extends React.Component {
         };  //添加请求头
         axios.post('http://localhost/ExamArrange/courseManage/importCourse.php', formData, config)
             .then(response => {
-                // console.log(response.data);
+                console.log(response.data);
                 _this.getData();
                 this.openNotification("课程数据导入成功", response.data.data.txt);
                 this.setState({
@@ -201,10 +230,20 @@ class CourseManage extends React.Component {
     }; 
     render() {
         const columns = [{
-            title: '课程名称',
-            dataIndex: 'coursename',
-            key: 'coursename',
+            title: '课程代码',
+            dataIndex: 'coursecode',
+            key: 'coursecode',
             render: text => <a>{text}</a>,
+        }, {
+                title: '课程名称',
+                dataIndex: 'coursename',
+                key: 'coursename',
+        //  render: text => <a>{text}</a>,
+            },{
+            title: '任课老师',
+            dataIndex: 'teacher',
+            key: 'teacher',
+            // render: text => <a>{text}</a>,
         },{
             title: '操作',
             key: 'action',
@@ -284,8 +323,17 @@ class CourseManage extends React.Component {
                         cancelText="取消"
                     >
 
-                        <div className="course_inp_wrapper">
+                        {/* <div className="course_inp_wrapper">
                             <span className="course_span">课程</span>  <Input placeholder="请输入修改后的课程" value={this.state.coursevalue} onChange={this.inpChange} />
+                        </div> */}
+                        <div className="course_inp_wrapper">
+                            <span className="course_span">课程代码</span>  <Input placeholder="请输入课程代码" value={this.state.coursecode}   onChange={this.inpChange.bind(this, "coursecode")} />
+                        </div>
+                        <div className="course_inp_wrapper">
+                            <span className="course_span">课程名称</span>  <Input placeholder="请输入课程名称" value={this.state.coursevalue} onChange={this.inpChange.bind(this, "coursename")} />
+                        </div>
+                        <div className="course_inp_wrapper">
+                            <span className="course_span">任课老师</span>  <Input placeholder="请输入任课老师" value={this.state.teacher}  onChange={this.inpChange.bind(this, "teacher")} />
                         </div>
                     </Modal>)
                  }
@@ -302,9 +350,14 @@ class CourseManage extends React.Component {
                         okText="确认"
                         cancelText="取消"
                     >
-
                         <div className="course_inp_wrapper">
-                            <span className="course_span">课程</span>  <Input placeholder="请输入添加的课程" onChange={this.inpChange} />
+                            <span className="course_span">课程代码</span>  <Input placeholder="请输入课程代码" onChange={this.inpChange.bind(this,"coursecode")} />
+                        </div>
+                        <div className="course_inp_wrapper">
+                            <span className="course_span">课程名称</span>  <Input placeholder="请输入课程名称" onChange={this.inpChange.bind(this,"coursename")} />
+                        </div>
+                        <div className="course_inp_wrapper">
+                            <span className="course_span">任课老师</span>  <Input placeholder="请输入任课老师" onChange={this.inpChange.bind(this,"teacher")} />
                         </div>
                     </Modal>)
                 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { Table, Modal, Button, Select, message} from 'antd';
+import { Table, Modal, Button, Input, Select, Upload, Icon, message, notification} from 'antd';
 // 引入样式
 import "../../../style/Mysystem/classmanager.less";
 
@@ -16,11 +16,14 @@ class ClassesManage extends React.Component {
             department:"请选择",
             major:"请选择",
             grade:"请选择",
-            class_name:"请选择"
+            class_name:"请选择",
+            count:""
 
         },
         addobj:{},
         tabledata:[],
+        fileList: [],
+        uploading: false
     }
     
     componentWillMount(){
@@ -55,6 +58,7 @@ class ClassesManage extends React.Component {
 
     // 添加成功
     addhandleOk=()=>{
+        // console.log(this.state.addobj);
         let _this=this;
         let a = this.state.addobj.hasOwnProperty("department");
         let b = this.state.addobj.hasOwnProperty("major");
@@ -119,6 +123,7 @@ class ClassesManage extends React.Component {
     
     handleOk = (e) => {
         let _this=this;
+        // console.log(this.state.obj);
         axios.post('http://localhost/ExamArrange/classManage/updateClasses.php', {
             data:JSON.stringify(this.state.obj)
         })
@@ -151,19 +156,72 @@ class ClassesManage extends React.Component {
 
     handleChange=(a,value)=> {
      let obj=JSON.parse(JSON.stringify(this.state.obj));
-     obj[a]=value;
+     let v;
+     if (a=="count") {
+         v=value.target.value;
+     }else{
+         v=value;
+     }
+     obj[a]=v;
         this.setState({
             obj
         })
     }
+    handleUpload = () => {
+        let _this = this;
+        const { fileList } = this.state;
+        const formData = new FormData();
+        // console.log(fileList);
+        this.setState({
+            uploading: true,
+        });
+        formData.append('myfile', fileList[0], fileList[0].name);//通过append向form对象添加数据
+        let config = {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        };  //添加请求头
+        axios.post('http://localhost/ExamArrange/classManage/importClasses.php', formData, config)
+            .then(response => {
+                console.log(response.data);
+                _this.getData();
+                this.openNotification("班级数据导入成功", response.data.data.txt);
+                this.setState({
+                    uploading: false,
+                });
+            })
+    }
     addChange = (a, value) => {
+        // console.log("a=====>>>",a);
+        // console.log("value===>>>>",value);
+
         let addobj = JSON.parse(JSON.stringify(this.state.addobj));
-        addobj[a] = value;
+        let v;
+        if (a=="count") {
+            v=value.target.value;
+        }else{
+            v=value;
+        }
+        addobj[a] = v;
         this.setState({
             addobj
         })
     }
-
+    //成功通知提醒框
+    openNotification = (m, d) => {
+        const key = `open${Date.now()}`;
+        const btn = (
+            <Button type="primary" size="small" onClick={() => notification.close(key)}>
+                知道了
+             </Button>
+        );
+        notification.open({
+            message: m,
+            description: d,
+            duration: null,
+            btn,
+            key,
+            icon: <Icon type="smile-circle" style={{ color: '#108ee9' }} />,
+        });
+    }; 
     render() {
         const columns = [{
             title: '院系',
@@ -185,6 +243,11 @@ class ClassesManage extends React.Component {
                 render: (text, record) => (<a>{record.class_name}</a>)
             
             }, 
+            {
+                title: '人数',
+                dataIndex: 'count',
+                key: 'count',
+            }, 
         {
             title: '操作',
             key: 'action',
@@ -195,10 +258,51 @@ class ClassesManage extends React.Component {
                 </span>
             ),
         }];
+        const { uploading } = this.state;
+        const props = {
+            onRemove: (file) => {
+                this.setState(({ fileList }) => {
+                    const index = fileList.indexOf(file);
+                    const newFileList = fileList.slice();
+                    newFileList.splice(index, 1);
+                    return {
+                        fileList: newFileList,
+                    };
+                });
+            },
+            beforeUpload: (file) => {
+                this.setState(({ fileList }) => ({
+                    fileList: [...fileList, file],
+                }));
+                return false;
+            },
+            fileList: this.state.fileList,
+        };
         return (
             <div>
                 <BreadcrumbCustom first="考试管理" second="班级管理" />
-                <div className="class_header">
+                <div className="course_header">
+                    <div className="import_excel">
+
+                        {/* 请选择你要上传的文件
+              <input type="file" name="myfile" onChange={this.uploadUpdate}/> */}
+
+                        <Upload {...props}>
+                            <Button>
+                                <Icon type="upload" /> 导入学生表
+                      </Button>
+                        </Upload>
+                        <Button
+                            className="upload-course-start"
+                            type="primary"
+                            onClick={this.handleUpload}
+                            disabled={this.state.fileList.length === 0}
+                            loading={uploading}
+                        >
+                            {uploading ? 'Uploading' : '开始导入'}
+                        </Button>
+
+                    </div>
                     <div className="class_option">
                         <Button type="primary" onClick={this.addClasses.bind(this)}>添加班级信息</Button>
                     </div>  
@@ -231,7 +335,7 @@ class ClassesManage extends React.Component {
                                 <Option value="网络工程">网络工程</Option>
                                 <Option value="计算机科学与技术">计算机科学与技术</Option>
                                 <Option value="物联网工程">物联网工程</Option>
-                                <Option value="数字媒体">数字媒体</Option>
+                                <Option value="数字媒体技术">数字媒体技术</Option>
                             </Select>
                         </div>
 
@@ -253,9 +357,17 @@ class ClassesManage extends React.Component {
                                 <Option value="3">3</Option>
                             </Select>
                         </div>
-                        班级:{this.state.obj.major}
+                        <div className="ClassSelect">
+                            <div className="class_inp_wrapper">
+                                <span className="course_span">人数</span>
+                                <Input placeholder="请输入人数" value={this.state.obj.count} onChange={this.handleChange.bind(this, "count")} />
+
+                            </div>
+                        </div>
+                
+                        {/* 班级:{this.state.obj.major}
                         年级:{this.state.obj.grade}
-                        班级:{this.state.obj.class_name}
+                        班级:{this.state.obj.class_name} */}
                 </div>
              
                 </Modal>
@@ -280,12 +392,12 @@ class ClassesManage extends React.Component {
 
                         </div>
                         <div className="ClassSelect">
-                            <span>班级:</span>
+                            <span>专业:</span>
                             <Select defaultValue="请选择" style={{ width: 250 }} onChange={this.addChange.bind(this, "major")} >
                                 <Option value="网络工程">网络工程</Option>
                                 <Option value="计算机科学与技术">计算机科学与技术</Option>
                                 <Option value="物联网工程">物联网工程</Option>
-                                <Option value="数字媒体">数字媒体</Option>
+                                <Option value="数字媒体技术">数字媒体技术</Option>
                             </Select>
                         </div>
 
@@ -310,6 +422,18 @@ class ClassesManage extends React.Component {
 
                             </Select>
                         </div>
+                        <div className="ClassSelect">
+                            <div className="class_inp_wrapper">
+                                <span className="course_span">人数</span>
+                                <Input placeholder="请输入人数" onChange={this.addChange.bind(this, "count")}/>
+
+                            </div>
+                        </div>
+              
+                        {/* <div className="ClassSelect">
+                            <span>人数:</span>
+                           
+                        </div> */}
                     </div>)}
                   
 

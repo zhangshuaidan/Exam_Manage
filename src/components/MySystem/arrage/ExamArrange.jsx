@@ -2,9 +2,10 @@ import React from 'react';
 import axios from 'axios';
 
 import moment from 'moment';
-import { Table, Modal, Button, Select, message, DatePicker, notification, Icon  } from 'antd';
+import { Table, Modal, Button, Select, message, DatePicker, notification, Icon, Input } from 'antd';
 import BreadcrumbCustom from '../../BreadcrumbCustom';
 const Option = Select.Option;
+const Search = Input.Search;
 class ExamArrange extends React.Component {
     state = { 
         visible: false,
@@ -77,9 +78,11 @@ class ExamArrange extends React.Component {
     }
 
     handleOk = (e) => {
-        // console.log(e);
+
+            // console.log(this.state.addObj);
         // console.log(this.state.addObj.subject);
-        // let _this=this;
+        let _this=this;
+
         axios.post('http://localhost/ExamArrange/Arrage/addArrange.php', {
             obj: JSON.stringify(this.state.addObj)
         })
@@ -122,7 +125,21 @@ class ExamArrange extends React.Component {
         this.setState({
             addObj: obj
         })
-
+    }
+    arrangeSearch=(v)=>{
+        // console.log(a);
+        axios.post('http://localhost/ExamArrange/roomManage/searchArrange.php', {
+            value: v
+        })
+            .then((response) => {
+                // console.log(response.data);
+                this.setState({
+                    tableData: response.data
+                })
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
     }
 
     // 删除记录
@@ -135,7 +152,7 @@ class ExamArrange extends React.Component {
           time:v.time
         })
             .then((response) => {
-                console.log(response.data);
+                // console.log(response.data);
                 if (response.data>0) {
                     // `删除成功${response.data}`
                     // let a = '删除成功'+response.data;
@@ -234,7 +251,11 @@ class ExamArrange extends React.Component {
              title: '年级',
             dataIndex: 'grade',
             key: 'grade',
-        },{
+            },{
+            title: '班级',
+            dataIndex: 'class_name',
+            key: 'class_name',
+            },{
             title: '考场',
             dataIndex: 'room',
             key: 'room',
@@ -247,43 +268,13 @@ class ExamArrange extends React.Component {
             key: 'action',
             render: (text, record) => (
                 <span>
-                    <Button>修改</Button>
+                    {/* <Button>修改</Button> */}
                     <Button type="danger" onClick={this.deleteRecord.bind(this,record)}> 删除</Button>
                 </span>
             ),
         }];
 
-        const data = [{
-            key: '1',
-            subject:"计算机网络",  
-            date: '2018-3-10',
-            time:"1",
-            major:"网络工程",
-            grade:"2014",
-            classes:"1",
-            room: "401",
-            invigilator: "张监考"
-        }, {
-                key: '2',
-                subject: "计算机网络",
-                date: '2018-3-10',
-                time: "1",
-                major: "计算机科学与技术",
-                grade: "2014",
-                classes: "1",
-                room:"401",
-                invigilator:"张监考"
-            }, {
-                key: '3',
-                subject: "计算机网络",
-                date: '2018-3-10',
-                time: "1",
-                major: "物联网工程",
-                grade: "2014",
-                classes: "1",
-                room: "401",
-                invigilator: "张监考"
-            }];
+     
         return (
             <div>
                 <BreadcrumbCustom first="考试安排" second="考试安排" />
@@ -291,6 +282,16 @@ class ExamArrange extends React.Component {
                         <div className="arrange_option">
                         <div className="download">
                             <Button type="dashed" icon="download" onClick={()=> window.location.href ="http://localhost/ExamArrange/exportexcel/exporttest.php"}>导出</Button>
+                        </div>
+                        <div className="search_wrapper">
+                            <Search
+                                placeholder="请输入考试科目"
+                                // onSearch={value => console.log(value)}
+                                onSearch={this.arrangeSearch}
+
+                                enterButton
+                            />
+
                         </div>
                         <div className="newarrange">
                             <Button type="primary" onClick={this.showModal}>新增考试安排</Button>
@@ -324,7 +325,8 @@ class ExamArrange extends React.Component {
                     </div>
                         <div className="select_wrapper">
                             <span>请选择日期</span>
-                            <DatePicker onChange={this.dateChange} disabledDate={this.disabledDate} />
+                            {/* disabledDate={this.disabledDate} */}
+                            <DatePicker onChange={this.dateChange}  />
                         </div>
 
                         <div className="select_wrapper">
@@ -338,7 +340,7 @@ class ExamArrange extends React.Component {
                         </div>
                         <div className="select_wrapper">
                             <span>请选择考场</span>
-                            <Select defaultValue="请选择" style={{ width: 240 }} onChange={this.arrangeChange.bind(this, "room")}>
+                            <Select placeholder="请选择" mode="tags"  style={{ width: 240 }} onChange={this.arrangeChange.bind(this, "room")}>
                                 {
                                     this.state.allRoom.map((item, index) =>
                                         <Option key={index} value={item.room} >{item.room}</Option>)
@@ -347,7 +349,7 @@ class ExamArrange extends React.Component {
                         </div>
                         <div className="select_wrapper">
                             <span>请选择监考人员</span>
-                            <Select defaultValue="请选择" style={{ width: 240 }} onChange={this.arrangeChange.bind(this, "invigilator")}>
+                            <Select placeholder="请选择" mode="tags" style={{ width: 240 }} onChange={this.arrangeChange.bind(this, "invigilator")}>
                                 {
                                     this.state.allinvigilator.map((item, index) =>
                                         <Option key={index} value={item.invigilator} >{item.invigilator}</Option>)
